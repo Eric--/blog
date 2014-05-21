@@ -22,7 +22,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-app.use('/users', users);
+app.use('/users', users);// note: 使用use注册相当于/users/,使用get还是原始请求
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
