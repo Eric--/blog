@@ -1,24 +1,42 @@
 var express = require('express');
 var path = require('path');
+
+var settings = require('./settings');
+
+//使用connect中间件
+var connect = require('connect');
+var MongoStore = require('connect-mongo')(connect);
+var flash = require('connect-flash');
 var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+//var session = require('express-session');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
 
-// view engine setup
+//设置页面模板和引擎模板的位置
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+//通过user启用中间件
 app.use(favicon());
+app.use(flash());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
+app.use(connect.session({
+	secret: settings.cookieSecret,
+	key: settings.db,//cookie name
+	cookie:{maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
+	store: new MongoStore({
+		db: settings.db
+	})
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
