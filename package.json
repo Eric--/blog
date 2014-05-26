@@ -16,6 +16,8 @@
 	"connect": "*",
 	"mongodb": "*",
 	"connect-mongo": "*",
-	"connect-flash": "*"
+	"connect-flash": "*",
+	"markdown": "*",
+	"connect-busboy": "*"
   }
 }

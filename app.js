@@ -11,7 +11,7 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-//var session = require('express-session');
+var busboy = require('connect-busboy');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -26,8 +26,8 @@ app.set('view engine', 'ejs');
 app.use(favicon());
 app.use(flash());
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser());
+app.use(busboy());
 app.use(cookieParser());
 app.use(connect.session({
 	secret: settings.cookieSecret,
@@ -37,11 +37,10 @@ app.use(connect.session({
 		db: settings.db
 	})
 }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);// note: 使用use注册相当于/users/,使用get还是原始请求
-
+app.use(express.static(path.join(__dirname, 'public')));
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
