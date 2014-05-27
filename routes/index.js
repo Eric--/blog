@@ -1,4 +1,5 @@
 var crypto = require('crypto'),
+	fs = require('fs');
 	User = require('../models/user.js'),
 	Post = require('../models/post.js');
 var express = require('express');
@@ -148,6 +149,38 @@ router.get('/logout', function(req, res) {
   req.session.user = null;
   req.flash('success', '登出成功！');
   res.redirect('/login');
+});
+
+//上传文件
+router.get('/upload', checkLogin);
+router.get('/upload', function(req, res){
+	res.render('upload', {
+		title: '文件上传',
+		user: req.session.user,
+		success: req.flash('success').toString(),
+		error: req.flash('error').toString()
+	});
+});
+
+router.post('/upload', checkLogin);
+router.post('/upload', function(req, res){
+/*	for(var i in req.files)
+	{
+		if(req.files[i].size == 0)
+		{
+			//使用同步方式删除一个文件
+			fs.unlinkSync(req.files[i].path);
+			console.log('Successfully removed an empty file!');
+		}else{
+			var target_path = './images/' + req.files[i].name;
+			//使用同步方式重命名一个文件
+			fs.renameSync(req.files[i].path, target_path);
+			console.log('Successfully renamed a file!');
+		}
+	} */
+	console.log(req.busboy);
+	req.flash('success', '文件上传成功！');
+	res.redirect('/upload');
 });
 
 //页面权限控制
