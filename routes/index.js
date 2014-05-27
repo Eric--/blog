@@ -164,23 +164,23 @@ router.get('/upload', function(req, res){
 
 router.post('/upload', checkLogin);
 router.post('/upload', function(req, res){
-/*	for(var i in req.files)
-	{
-		if(req.files[i].size == 0)
+	
+	var fstream;
+	req.pipe(req.busboy);
+	req.busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+    	
+		if(filename)
 		{
-			//使用同步方式删除一个文件
-			fs.unlinkSync(req.files[i].path);
-			console.log('Successfully removed an empty file!');
-		}else{
-			var target_path = './images/' + req.files[i].name;
-			//使用同步方式重命名一个文件
-			fs.renameSync(req.files[i].path, target_path);
-			console.log('Successfully renamed a file!');
+			console.log("Uploading: " + filename); 
+        	fstream = fs.createWriteStream('./public/images/' + filename);
+        	file.pipe(fstream);
 		}
-	} */
-	console.log(req.busboy);
-	req.flash('success', '文件上传成功！');
-	res.redirect('/upload');
+  	});
+	req.busboy.on('finish', function(){
+		console.log("Uploading: " + '文件上传成功！');
+		req.flash('success', '文件上传成功！');
+		res.redirect('/upload');   
+	});
 });
 
 //页面权限控制
