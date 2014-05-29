@@ -1,5 +1,6 @@
 var crypto = require('crypto'),
-	fs = require('fs');
+	fs = require('fs'),
+	formidable = require("formidable"),
 	User = require('../models/user.js'),
 	Post = require('../models/post.js');
 var express = require('express');
@@ -165,22 +166,25 @@ router.get('/upload', function(req, res){
 router.post('/upload', checkLogin);
 router.post('/upload', function(req, res){
 	
-	var fstream;
-	req.pipe(req.busboy);
-	req.busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-    	
-		if(filename)
+	var form = new formidable.IncomingForm();
+	form.uploadDir = "./public/tmp/";//至关重要，上传文件所需的临时目录
+  	console.log("about to parse");
+  	form.parse(req, function(error, fields, files) {
+	    console.log("parsing done");
+		for(var prop in files)
 		{
-			console.log("Uploading: " + filename); 
-        	fstream = fs.createWriteStream('./public/images/' + filename);
-        	file.pipe(fstream);
+			var file = files[prop];
+			if(file.name)
+			{
+				fs.renameSync(file.path, "./public/images/" + file.name);
+			}
+			else{
+				fs.unlinkSync(file.path);//删除临时目录的空文件，不然会被撑爆
+			}
 		}
   	});
-	req.busboy.on('finish', function(){
-		console.log("Uploading: " + '文件上传成功！');
-		req.flash('success', '文件上传成功！');
-		res.redirect('/upload');   
-	});
+	req.flash('success', '文件上传成功！');
+  	res.redirect('/upload');
 });
 
 //页面权限控制
