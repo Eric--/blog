@@ -218,7 +218,7 @@ router.get("/u/:name", function(req, res){
 
 router.get("/u/:name/:day/:title", function(req, res){
 		
-	//查询并返回该用户的所有文章
+	//查询并返回该用户的文章
 	Post.getOne(req.params.name, req.params.day, req.params.title, function(error, post){
 		
 		if(error){

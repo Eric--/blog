@@ -32,7 +32,8 @@ Post.prototype.save = function(funCallback)
 		title: this.title,
 		tags: this.tags,
 		post: this.post,
-		comments: []
+		comments: [],
+		pv: 0
 	};
 	//打开数据库
 	mongodb.open(function(err, db){
@@ -124,6 +125,21 @@ Post.getOne = function(name, day, title, funCallback)
 				{
 					return funCallback(err);
 				}
+				
+				//每访问1次，pv值增加1
+				collection.update({
+					"name": name,
+					"time.day": day,
+					"title": title
+				}, {
+					$inc: {"pv": 1}
+				}, function(err){
+					mongodb.close();
+					if(err){
+						return funCallback(err);
+					}
+				});
+				
 				//解析 md 为 html
 				doc.post = markdown.toHTML(doc.post);
 				doc.comments.forEach(function(comment){
