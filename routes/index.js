@@ -189,6 +189,34 @@ router.post('/upload', function(req, res){
   	res.redirect('/upload');
 });
 
+router.get('/links', function(req, res) {
+  res.render('links', { 
+  	title: '友情链接',
+	user: req.session.user,
+	success: req.flash('success').toString(),
+	error: req.flash('error').toString()
+  });
+});
+
+router.get("/search", function(req, res){
+	
+	Post.search(req.query.keyword, function(err, posts){
+		
+		if(err){
+			req.flash("error", err);
+			return res.redirect('/');
+		}
+		
+		res.render('search', {
+			title: "SEARCH:" + req.query.keyword,
+			posts: posts,
+			user: req.session.user,
+			success: req.flash('success').toString(),
+			error: req.flash('error').toString()
+		});
+	});
+});
+
 router.get("/u/:name", function(req, res){
 	
 	//检查用户是否存在
@@ -316,6 +344,10 @@ router.post('/u/:name/:day/:title', function(req, res){
 		res.redirect('back');
 	});
 });
+/** 有问题待解决
+router.get(function(req, res){
+	res.render('404');
+}); */
 
 //获取存档信息 
 router.get('/archive', function(req, res){

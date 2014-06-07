@@ -120,9 +120,9 @@ Post.getOne = function(name, day, title, funCallback)
 				"time.day": day,
 				"title": title
 			}, function(err, doc){
-				mongodb.close();
 				if(err)
 				{
+					mongodb.close();
 					return funCallback(err);
 				}
 				
@@ -275,6 +275,42 @@ Post.getArchive = function(funCallback)
 			}
 			//返回只包含 name、time、title 属性的文章组成的存档数组
 			collection.find({}, {
+				"name": 1,
+				"time": 1,
+				"title": 1
+			}).sort({time: -1}).toArray(function(err, docs){
+				mongodb.close();
+				if(err)
+				{
+					return funCallback(err);
+				}
+				funCallback(null, docs);
+			});
+		});
+	});
+}
+
+//返回通过标题关键字查询的所有文章信息
+Post.search = function(keyword, funCallback)
+{
+	//打开数据库
+	mongodb.open(function(err, db){
+		if(err)
+		{
+			return funCallback(err);
+		}
+		//读取 posts集合
+		db.collection('posts', function(err, collection){
+			if(err)
+			{
+				mongodb.close();
+				return funCallback(err);
+			}
+			var pattern = new RegExp("^.*" + keyword + ".*$", "i");
+			//返回只包含 name、time、title 属性的文章组成的存档数组
+			collection.find({
+				"title": pattern
+			}, {
 				"name": 1,
 				"time": 1,
 				"title": 1
