@@ -18,6 +18,8 @@
 	"connect-mongo": "*",
 	"connect-flash": "*",
 	"markdown": "*",
-	"formidable": "*"
+	"formidable": "*",
+	"passport": "*",
+	"passport-github": "*"
   }
 }

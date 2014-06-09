@@ -11,11 +11,18 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var fs = require('fs');
+var accessLog = fs.createWriteStream('access.log', {flags: 'a'});
+var errorLog = fs.createWriteStream('error.log', {flags: 'a'});
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+
+//github登录验证
+var passport = require('passport'),
+	GithubStrategy = require('passport-github').Strategy;
 
 //设置页面模板和引擎模板的位置
 app.set('views', path.join(__dirname, 'views'));
@@ -25,6 +32,7 @@ app.set('view engine', 'ejs');
 app.use(favicon());
 app.use(flash());
 app.use(logger('dev'));
+app.use(logger({stream: accessLog}));
 app.use(bodyParser());
 app.use(cookieParser());
 app.use(connect.session({
@@ -41,12 +49,10 @@ app.use('/users', users);// note: 使用use注册相当于/users/,使用get还�
 app.use(express.static(path.join(__dirname, 'public')));
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+	var meta = '[' + new Date() + ']' + req.url + '\n';
+	errorLog.write(meta + err.stack + '\n');
+    next();
 });
-
-/// error handlers
 
 // development error handler
 // will print stacktrace
