@@ -44,6 +44,8 @@ app.use(connect.session({
 	})
 }));
 
+//初始化Passport
+app.use(passport.initialize());
 app.use('/', routes);
 app.use('/users', users);// note: 使用use注册相当于/users/,使用get还是原始请求
 app.use(express.static(path.join(__dirname, 'public')));
@@ -53,6 +55,14 @@ app.use(function(req, res, next) {
 	errorLog.write(meta + err.stack + '\n');
     next();
 });
+
+passport.use(new GithubStrategy({	
+	clientID: "9223f6a2494b85247f03",
+	clientSecret: "77af382cfd93b25e3d0b49ef367055f6ce74b3a7",
+	callbackURL: "http://localhost:3000/login/github/callback"
+}, function(accessToken, refreshToken, profile, done){
+	done(null, profile);
+}));
 
 // development error handler
 // will print stacktrace

@@ -3,7 +3,8 @@ var crypto = require('crypto'),
 	formidable = require("formidable"),
 	User = require('../models/user.js'),
 	Post = require('../models/post.js'),
-	Comment = require('../models/comment.js');
+	Comment = require('../models/comment.js'),
+	passport = require('passport');
 var express = require('express');
 var router = express.Router();
 
@@ -96,6 +97,19 @@ router.get('/login', function(req, res) {
 	success: req.flash('success').toString(),
 	error: req.flash('error').toString()
   });
+});
+
+router.get('/login/github', passport.authenticate('github', {session: false}));
+router.get('/login/github/callback', passport.authenticate('github',{
+	session: false,
+	failureRedirect: '/login',
+	successFlash: '登录成功'
+}), function(req, res){
+	req.session.user = {
+		name: req.user.username, 
+		head: 'https://gravatar.com/avatar/' + req.user._json.gravatar_id + "?s=48"
+	};
+	res.redirect('/');
 });
 
 router.post('/login', checkNotLogin);
@@ -219,29 +233,29 @@ router.get("/search", function(req, res){
 
 router.get("/u/:name", function(req, res){
 	
-	//检查用户是否存在
-	User.get(req.params.name, function(err, user){
+	//检查用户是否存在(第三方登录不需要验证)
+/*	User.get(req.params.name, function(err, user){
 		
 		if(!user){
 			req.flash("error", '用户不存在！');
 			return res.redirect('/');
-		}
+		} */
 		//查询并返回该用户的所有文章
-		Post.getAll(user.name, function(error, posts){
+		Post.getAll(req.params.name, function(error, posts){
 			
 			if(error){
 				req.flash('error', error);
 				return res.redirect('/');
 			}
 			res.render('user', {
-				title: user.name,
+				title: req.params.name,
 				posts: posts,
 				user: req.session.user,
 				success: req.flash('success').toString(),
 				error: req.flash('error').toString()
 			});
 		});
-	});
+	//});
 });
 
 router.get("/u/:name/:day/:title", function(req, res){
