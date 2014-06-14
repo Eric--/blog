@@ -37,11 +37,12 @@ app.use(bodyParser());
 app.use(cookieParser());
 app.use(connect.session({
 	secret: settings.cookieSecret,
-	key: settings.db,//cookie name
+	//key: settings.db,//cookie name
 	cookie:{maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
-	store: new MongoStore({
+/*	store: new MongoStore({
 		db: settings.db
-	})
+	}) */
+	url: settings.url
 }));
 
 //初始化Passport

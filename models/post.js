@@ -1,4 +1,6 @@
-var mongodb = require('./db'),
+var //mongodb = require('./db'),
+	mongodb = require('mongodb').Db,
+	settings = require('../settings'),
 	markdown = require('markdown').markdown;
 
 function Post(name, title, tags, post)
@@ -36,7 +38,7 @@ Post.prototype.save = function(funCallback)
 		pv: 0
 	};
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -45,14 +47,14 @@ Post.prototype.save = function(funCallback)
 		db.collection('posts', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 			//将文档插入 posts 集合
 			collection.insert(post, {
 				safe: true
 			}, function(err){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);
@@ -67,7 +69,7 @@ Post.prototype.save = function(funCallback)
 Post.getAll = function(name, funCallback)
 {
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -76,14 +78,14 @@ Post.getAll = function(name, funCallback)
 		db.collection('posts', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 			var query = {};
 			if(name) query.name = name;
 			//根据query对象查询文档
 			collection.find(query).sort({time: -1}).toArray(function(err, docs){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);
@@ -101,7 +103,7 @@ Post.getAll = function(name, funCallback)
 Post.getOne = function(name, day, title, funCallback)
 {
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -110,7 +112,7 @@ Post.getOne = function(name, day, title, funCallback)
 		db.collection('posts', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 		
@@ -122,7 +124,7 @@ Post.getOne = function(name, day, title, funCallback)
 			}, function(err, doc){
 				if(err)
 				{
-					mongodb.close();
+					db.close();
 					return funCallback(err);
 				}
 				
@@ -134,7 +136,7 @@ Post.getOne = function(name, day, title, funCallback)
 				}, {
 					$inc: {"pv": 1}
 				}, function(err){
-					mongodb.close();
+					db.close();
 					if(err){
 						return funCallback(err);
 					}
@@ -155,7 +157,7 @@ Post.getOne = function(name, day, title, funCallback)
 Post.edit = function(name, day, title, funCallback)
 {
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -164,7 +166,7 @@ Post.edit = function(name, day, title, funCallback)
 		db.collection('posts', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 		
@@ -174,7 +176,7 @@ Post.edit = function(name, day, title, funCallback)
 				"time.day": day,
 				"title": title
 			}, function(err, doc){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);
@@ -189,7 +191,7 @@ Post.edit = function(name, day, title, funCallback)
 Post.update = function(name, day, title, post, funCallback)
 {
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -198,7 +200,7 @@ Post.update = function(name, day, title, post, funCallback)
 		db.collection('posts', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 		
@@ -210,7 +212,7 @@ Post.update = function(name, day, title, post, funCallback)
 			}, {
 				$set: {post: post}
 			}, function(err, doc){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);
@@ -225,7 +227,7 @@ Post.update = function(name, day, title, post, funCallback)
 Post.remove = function(name, day, title, funCallback)
 {
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -234,7 +236,7 @@ Post.remove = function(name, day, title, funCallback)
 		db.collection('posts', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 		
@@ -246,7 +248,7 @@ Post.remove = function(name, day, title, funCallback)
 			}, {
 				w: 1
 			},function(err, doc){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);
@@ -261,7 +263,7 @@ Post.remove = function(name, day, title, funCallback)
 Post.getArchive = function(funCallback)
 {
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -270,7 +272,7 @@ Post.getArchive = function(funCallback)
 		db.collection('posts', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 			//返回只包含 name、time、title 属性的文章组成的存档数组
@@ -279,7 +281,7 @@ Post.getArchive = function(funCallback)
 				"time": 1,
 				"title": 1
 			}).sort({time: -1}).toArray(function(err, docs){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);
@@ -294,7 +296,7 @@ Post.getArchive = function(funCallback)
 Post.search = function(keyword, funCallback)
 {
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -303,7 +305,7 @@ Post.search = function(keyword, funCallback)
 		db.collection('posts', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 			var pattern = new RegExp("^.*" + keyword + ".*$", "i");
@@ -315,7 +317,7 @@ Post.search = function(keyword, funCallback)
 				"time": 1,
 				"title": 1
 			}).sort({time: -1}).toArray(function(err, docs){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);

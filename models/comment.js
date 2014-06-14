@@ -1,5 +1,7 @@
 
-var mongodb = require('./db');
+var //mongodb = require('./db')
+	mongodb = require('mongodb').Db,
+	settings = require('../settings');
 
 function Comment(name, day, title, comment)
 {
@@ -19,7 +21,7 @@ Comment.prototype.save = function(funCallback)
 		title = this.title,
 		comment = this.comment;
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -28,7 +30,7 @@ Comment.prototype.save = function(funCallback)
 		db.collection('posts', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 			//通过用户名、时间及标题查找文档，并把一条留言对象添加到文档的comments数组里
@@ -39,7 +41,7 @@ Comment.prototype.save = function(funCallback)
 			}, {
 				$push: {"comments": comment}
 			}, function(err){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);

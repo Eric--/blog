@@ -1,4 +1,6 @@
-var mongodb = require('./db');
+var //mongodb = require('./db')
+	mongodb = require('mongodb').Db,
+	settings = require('../settings');
 
 function User(user)
 {
@@ -19,7 +21,7 @@ User.prototype.save = function(funCallback)
 		email: this.email
 	};
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -28,14 +30,14 @@ User.prototype.save = function(funCallback)
 		db.collection('users', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 			//将用户数据插入 users 集合
 			collection.insert(user, {
 				safe: true
 			}, function(err, user){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);
@@ -50,7 +52,7 @@ User.prototype.save = function(funCallback)
 User.get = function(name, funCallback)
 {
 	//打开数据库
-	mongodb.open(function(err, db){
+	mongodb.connect(settings.url, function(err, db){
 		if(err)
 		{
 			return funCallback(err);
@@ -59,14 +61,14 @@ User.get = function(name, funCallback)
 		db.collection('users', function(err, collection){
 			if(err)
 			{
-				mongodb.close();
+				db.close();
 				return funCallback(err);
 			}
 			//将用户数据插入 users 集合
 			collection.findOne({
 				name: name
 			}, function(err, user){
-				mongodb.close();
+				db.close();
 				if(err)
 				{
 					return funCallback(err);
