@@ -11,7 +11,7 @@ var router = express.Router();
 /* GET home page. test use
 router.get('/', function(req, res) {
   res.render('index_old', { title: 'Express' });
-}); */
+}); */ 
 
 /* update by erric */
 router.get('/nswbmw', function(req, res) {
